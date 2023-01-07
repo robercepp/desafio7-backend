@@ -56,4 +56,4 @@ app.get('/', async(req, res) =>{
 //funciones para crear las tablas requeridas
 //chat.crearTablaChat() (la tabla ya está creada y tiene ya unos mensajes cargados)
 //prod.crearTablaProd() creará la tabla "productos" dentro de la base de datos "test" de MySQL
-//prod.cargarDatos() también he armado una función que carga 3 productos en la base de datos a modo de ejemplo.
+//prod.cargarDatosProd() también he armado una función que carga 3 productos en la base de datos a modo de ejemplo.
