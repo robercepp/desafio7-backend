@@ -1,11 +1,24 @@
-module.exports = class Productos {
-    constructor(options) {
+module.exports = class DBHandler {
+    constructor(options, tabla) {
         this.knex = require('knex')(options)
+        this.tabla = tabla
     }
 
+    async crearTablaChat() {
+        this.knex.schema.createTable(this.tabla, table => {
+            table.string('email')
+            table.string('diaYHora')
+            table.string('text')
+        })
+            .then(() => console.log('tabla creada'))
+            .catch((error) => { console.log(error); throw error })
+            .finally(() => {
+                this.knex.destroy()
+            });
+    }
 
     //nota: en este caso la tabla será alojada dentro de la base de datos "test" de MySQL
-    async crearTabla() {
+    async crearTablaProd() {
         this.knex.schema.createTable('productos', table => {
             table.string('title')
             table.integer('price')
@@ -16,9 +29,9 @@ module.exports = class Productos {
             .finally(() => {
                 this.knex.destroy()
             });
-    }
+    };
 
-    async cargarDatos() {
+    async cargarDatosProd() {
         const productos = [
             {
                 title: "Libreta de Chicas Gamer",
@@ -46,14 +59,14 @@ module.exports = class Productos {
 
     async save(object) {
         try {
-            await this.knex('productos').insert(object)
+            await this.knex(this.tabla).insert(object)
         } catch (error) {
             console.log('error!: ', error)
         }
     }
     async getAll() {
         try {
-            let result = await this.knex.from('productos').select("*")
+            let result = await this.knex.from(this.tabla).select("*")
             return result
         } catch (error) {
             console.log('error!: ', error)

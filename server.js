@@ -26,35 +26,34 @@ const connectServer = httpServer.listen(PORT, () => console.log(`Servidor http c
 connectServer.on("error", error => console.log(`Error en servidor ${error}`))
 
 //class
-const Chat = require("./classes/chat.js")
-const chat1 = new Chat(sqLite.options)
-const Catalogo = require("./classes/productos.js")
-const prod1 = new Catalogo(mariaDB.options)
+const dBHandler = require("./classes/dbhandler.js")
+const chat = new dBHandler(sqLite.options, 'mensajes')
+const prod = new dBHandler(mariaDB.options, 'productos')
 
 //"connection" se ejecuta la primera vez que se abre una nueva conexion
 io.on('connection', async(socket) => {
     console.log('Nuevo cliente conectado')
     //Envio de los mensajes al cliente que se conecto
-    socket.emit('mensajes', await chat1.getAll())
-    socket.emit('mensaje', await chat1.getAll())
-    socket.emit('productos', await  prod1.getAll())
-    socket.emit('producto', await prod1.getAll())
+    socket.emit('mensajes', await chat.getAll())
+    socket.emit('mensaje', await chat.getAll())
+    socket.emit('productos', await  prod.getAll())
+    socket.emit('producto', await prod.getAll())
     //Escucho los mensajes enviados por el cliente
     socket.on('new-message', async(data) => {
-        await chat1.save(data)
-        io.sockets.emit('mensaje', await chat1.getAll())
+        await chat.save(data)
+        io.sockets.emit('mensaje', await chat.getAll())
     })
     socket.on('new-producto', async (data) => {
-        await prod1.save(data)
-        io.sockets.emit('producto', await prod1.getAll())
+        await prod.save(data)
+        io.sockets.emit('producto', await prod.getAll())
     })
 })
 
 app.get('/', async(req, res) =>{
-    res.render('main', {titulo: 'Engine Handlebars con Websocket', lista: prod1.getAll(), mensajes: chat1.getAll()})
+    res.render('main', {titulo: 'Engine Handlebars con Websocket', lista: prod.getAll(), mensajes: chat.getAll()})
 })
 
 //funciones para crear las tablas requeridas
-//chat1.crearTabla() (la tabla ya está creada y tiene ya unos mensajes cargados)
-//prod1.crearTabla() creará la tabla "productos" dentro de la base de datos "test" de MySQL
-//prod1.cargarDatos() también he armado una función que carga 3 productos en la base de datos a modo de ejemplo.
+//chat.crearTablaChat() (la tabla ya está creada y tiene ya unos mensajes cargados)
+//prod.crearTablaProd() creará la tabla "productos" dentro de la base de datos "test" de MySQL
+//prod.cargarDatos() también he armado una función que carga 3 productos en la base de datos a modo de ejemplo.
